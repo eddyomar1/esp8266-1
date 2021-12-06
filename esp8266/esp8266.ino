@@ -4,7 +4,7 @@
 //
 const char* ssid = "*_*";
 const char* password =  "";
-
+int ledPin = 2;
 String code = "1" ; 
 
 void setup() {
@@ -56,7 +56,7 @@ String dsp = "ide="+code+"listo";
 
 
 if(cuerpo_respuesta.indexOf("high") != -1){
-  //digitalWrite(ledPin, HIGH);
+  digitalWrite(ledPin, HIGH);
   Serial.println("el led esta encendido");
   
   delay(1000);
@@ -77,8 +77,24 @@ https.begin(client, "https://pruevaesp.000webhostapp.com");
   }
 
 else if(cuerpo_respuesta.indexOf("low") != -1){
-  //digitalWrite(ledPin, LOW);
+  digitalWrite(ledPin, LOW);
   Serial.print("el led esta Apagado");
+
+  delay(1000);
+  //digitalWrite(ledPin, LOW);
+
+    https.end();
+
+delay(100);
+    
+https.begin(client, "https://pruevaesp.000webhostapp.com");
+    https.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  
+      int sp = https.POST(dsp);
+  Serial.println("segundo Código HTTP ► " + String(sp));
+  Serial.println(https.getString());
+
+  
 
   }else if(cuerpo_respuesta.indexOf("listo") != -1){
   Serial.print("listo");
