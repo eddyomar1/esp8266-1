@@ -1,26 +1,17 @@
-//si usas platformio, si usas arduino ide comentar esta línea.
-//#include <Arduino.h>
-
-//si usas esp32
-//#include <HTTPClient.h>
-//#include <WiFi.h>
-
-//si usas esp8266
 #include <ESP8266WiFiMulti.h>
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
-
+//
 const char* ssid = "*_*";
 const char* password =  "";
 
-String user = "ioticos";
-String pass = "12345";
+String code = "1" ; 
 
 void setup() {
   delay(10);
   Serial.begin(115200);
 
-
+//
   WiFi.begin(ssid, password);
 
   Serial.print("Conectando...");
@@ -37,34 +28,61 @@ void setup() {
 void loop() {
 
   if(WiFi.status()== WL_CONNECTED){   //Check WiFi connection status
-WiFiClient client;
-    HTTPClient http;
+WiFiClientSecure client;
+
+  //^^^Que es esto?^^^
+    
+    HTTPClient https;
+//WiFiClientSecure newSecure;
+client.setInsecure();
   //  String datos_a_enviar = "user=" + user + "&pass=" + pass;
       String datos_a_enviar = "ide=1";
+String dsp = "ide="+code+"listo";
+//String dspp = "&segundap=listo";
       
-    http.begin(client, "http://192.168.43.110/");  //ten en cuenta el SSL  https://ioticos.org/esp-post.php    //Indicamos el destino
-    http.addHeader("Content-Type", "application/x-www-form-urlencoded"); //Preparamos el header text/plain si solo vamos a enviar texto plano sin un paradigma llave:valor.
+    https.begin(client, "https://pruevaesp.000webhostapp.com");  //ten en cuenta el SSL-- hemm... ya no se usa, ahora es TLS-- prueva las direcciones especificas -- https://ioticos.org/esp-post.php    //Indicamos el destino
+    https.addHeader("Content-Type", "application/x-www-form-urlencoded"); //Preparamos el header text/plain si solo vamos a enviar texto plano sin un paradigma llave:valor.
 
-    int codigo_respuesta = http.POST(datos_a_enviar);   //Enviamos el post pasándole, los datos que queremos enviar. (esta función nos devuelve un código que guardamos en un int)
+    int codigo_respuesta = https.POST(datos_a_enviar);   //Enviamos el post pasándole, los datos que queremos enviar. (esta función nos devuelve un código que guardamos en un int)
 
     if(codigo_respuesta>0){
+      Serial.println("▼▼▼");
       Serial.println("Código HTTP ► " + String(codigo_respuesta));   //Print return code
 
       if(codigo_respuesta == 200){
-        String cuerpo_respuesta = http.getString();
+        String cuerpo_respuesta = https.getString();
         Serial.println("El servidor respondió ▼ ");
         Serial.println(cuerpo_respuesta);
 
 
 if(cuerpo_respuesta.indexOf("high") != -1){
   //digitalWrite(ledPin, HIGH);
-  Serial.print("el led esta encendido");
+  Serial.println("el led esta encendido");
+  
+  delay(1000);
+  //digitalWrite(ledPin, LOW);
+
+    https.end();
+
+delay(100);
+    
+https.begin(client, "https://pruevaesp.000webhostapp.com");
+    https.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  
+      int sp = https.POST(dsp);
+  Serial.println("segundo Código HTTP ► " + String(sp));
+  Serial.println(https.getString());
+
+  
   }
 
 else if(cuerpo_respuesta.indexOf("low") != -1){
   //digitalWrite(ledPin, LOW);
   Serial.print("el led esta Apagado");
 
+  }else if(cuerpo_respuesta.indexOf("listo") != -1){
+  Serial.print("listo");
+    
   }else{ Serial.print("algo salio mal");}
 
 
@@ -79,7 +97,7 @@ else if(cuerpo_respuesta.indexOf("low") != -1){
 
     }
 
-    http.end();  //libero recursos
+    https.end();  //libero recursos
 
   }else{
 
