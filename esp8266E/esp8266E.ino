@@ -1,5 +1,5 @@
 
-/*
+  /*
 pinMode(3, OUTPUT);
 pinMode(1, OUTPUT);
 pinMode(0, OUTPUT);
@@ -11,10 +11,17 @@ int v = 0;
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
 
-const char* ssid = "*_*";
-const char* password =  "";
+#include <WiFiManager.h> ///
+
+//const char* ssid = "*_*";
+//const char* password =  "";
 int ledPin = 2;
 String code = "1" ; 
+
+
+IPAddress ip(192, 168, 1, 200);
+IPAddress gateway(192, 168, 1, 1);
+IPAddress subnet(255, 255, 255, 0);
 
 void setup() {
   pinMode(0, INPUT);
@@ -22,8 +29,17 @@ void setup() {
   delay(10);
   Serial.begin(115200);
   
-  WiFi.begin(ssid, password);
+//  WiFi.begin(ssid, password);
+//  WiFi.begin();
 
+ WiFi.softAPConfig(ip, gateway, subnet);////
+
+    WiFiManager wm;///
+
+  wm.autoConnect("DRD WiFi 1");///
+
+    WiFi.mode(WIFI_STA);///
+    
   Serial.print("Conectando...");
   while (WiFi.status() != WL_CONNECTED) { //Check for the connection
     delay(500);
